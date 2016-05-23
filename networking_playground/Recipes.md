@@ -27,10 +27,6 @@ $ ./destroy_multienv.sh
 
 ### Using a "frontend" network and links with overlays:
 
-```bash
-$ docker network create -d overlay --subnet=15.0.0.0/24 frontend
-```
-
 We want to share service1-master and service5-integration to the "custom" network.
 What we don't want is that service1-master and service5-integration containers to
 callback the corresponding containers from the custom network. To do that we create a

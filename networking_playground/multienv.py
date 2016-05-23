@@ -50,4 +50,4 @@ for s in customServices:
     #create custom containers
     subprocess.check_call(['/vagrant/networking_playground/create_container.sh', s['port'], s['name'],'custom','true'])
 
-print "Fin"
+print "Created!"

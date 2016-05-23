@@ -22,32 +22,32 @@ subnets_nonet = ['14.0.0.0/24','15.0.0.0/24']
 
 print "Create Main Networks"
 for i, b in enumerate(branches):
-    subprocess.check_call(['/vagrant/replier/create_overlay.sh', subnets[i], b])
+    subprocess.check_call(['/vagrant/networking_playground/create_overlay.sh', subnets[i], b])
 
 print "Create master and integration containers"
 
 for s in services:
     for b in branches:
         #create containers
-        subprocess.check_call(['/vagrant/replier/create_container.sh', s['port'], s['name'],b,'true'])
+        subprocess.check_call(['/vagrant/networking_playground/create_container.sh', s['port'], s['name'],b,'true'])
 
 print "Create Main Networks for nonet containers"
 for i, b in enumerate(branches_nonet):
-    subprocess.check_call(['/vagrant/replier/create_overlay.sh', subnets_nonet[i], b])
+    subprocess.check_call(['/vagrant/networking_playground/create_overlay.sh', subnets_nonet[i], b])
 
 print "Create master-nonet and integration-nonet containers"
 
 for s in services:
     for b in branches_nonet:
         #create containers
-        subprocess.check_call(['/vagrant/replier/create_container.sh', s['port'], s['name'],b,'false'])
+        subprocess.check_call(['/vagrant/networking_playground/create_container.sh', s['port'], s['name'],b,'false'])
 
 print "Create Custom overlay "
-subprocess.check_call(['/vagrant/replier/create_overlay.sh', '14.0.0.0/24', 'custom'])
+subprocess.check_call(['/vagrant/networking_playground/create_overlay.sh', '14.0.0.0/24', 'custom'])
 
 print "Create custom containers"
 for s in customServices:
     #create custom containers
-    subprocess.check_call(['/vagrant/replier/create_container.sh', s['port'], s['name'],'custom','true'])
+    subprocess.check_call(['/vagrant/networking_playground/create_container.sh', s['port'], s['name'],'custom','true'])
 
 print "Fin"

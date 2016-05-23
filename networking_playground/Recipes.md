@@ -1,5 +1,7 @@
 ## Isolating containers for clean sharing between networks for flexible CI/CD.
 
+Setup:
+
 ```bash
 $ git clone https://github.com/adnaan/docker-flow-proxy.git
 
@@ -12,13 +14,17 @@ $ vagrant up swarm-master swarm-node-1 swarm-node-2 proxy
 
 $ vagrant ssh proxy
 
-$ cd /vagrant/replier
+$ cd /vagrant/networking_playground
 
 # This will create master, integration and custom overlays with
 # respective containers. It will also create orphan overlay Networks
 # with "nonet" containers which are initially connected to the
 # bridge network. This takes a while to finish.
 $ ./multienv.py
+
+$ docker ps -qa --filter "name=service*" --format={{.Names}}
+
+$ docker network ls
 
 # To destroy everything created above
 $ ./destroy_multienv.sh
@@ -27,11 +33,25 @@ $ ./destroy_multienv.sh
 
 ### Using a "frontend" network and links with overlays:
 
+The git versions master, integration and custom are used as references to create
+images, containers and networks. A small Go program "reply.go" is selectively compiled
+to emulate an array of different services.
+
+This is done in the create_container.sh script:
+
+```bash
+$ env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags \
+"-X main.port=$1 -X main.name=$2 -X main.branch=$3" -o reply .
+
+$ docker build --rm=true --build-arg PORT=$1 -t $2:$3 .
+```
+
+
 We want to share service1-master and service5-integration to the "custom" network.
-What we don't want is that service1-master and service5-integration containers to
-callback the corresponding containers from the custom network. To do that we create a
-"frontend" overlay which acts a mediator between the various revisions and still
-provides the required
+ On the other hand, service1-master and service5-integration containers should not
+callback the corresponding containers in the custom network but rather talk to their
+original network. To enforce that we create a "frontend" overlay network which acts a mediator
+between the various revisions and yet provides the isolation.
 
 ```bash
 $ docker network create -d overlay --subnet=16.0.0.0/24 frontend
@@ -66,11 +86,14 @@ I am service3:custom listening on port 3333
 / # wget -qO- service4.myntra.com:4444
 I am service4:custom listening on port 4444
 ```
-Since the developer explicity requires master and integration containers, we can safely assume a one-many mapping L.H.S is the custom network container and R.H.S is the master/integration containers.
+Since the developer explicitly requires master and integration containers in the cluster,
+ we can safely assume a one-many mapping L.H.S is the custom network container
+ and R.H.S is the master/integration containers.
 
 In this approach the overhead is creating an extra overlay
 for each cluster. The drawbacks are:
-1. Creating an extra overlay
+
+1. Creating an extra overlay for each cluster.
 
 ### Using only links without overlays
 

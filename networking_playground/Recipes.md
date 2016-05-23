@@ -66,19 +66,19 @@ Same naming convention goes for "master" and "integration" networks. Both "maste
 Now let's connect service1-master and service5-integration to frontend.
 
 ```bash
-vagrant@proxy:/vagrant/replier$ docker network connect frontend service1-master
-vagrant@proxy:/vagrant/replier$ docker network connect frontend service5-integration
+vagrant@proxy:/vagrant/networking_playground$ docker network connect frontend service1-master
+vagrant@proxy:/vagrant/networking_playground$ docker network connect frontend service5-integration
 # link the custom network container to each master and integration.
 
-vagrant@proxy:/vagrant/replier$ docker network connect --link=service1-master:service1.myntra.com \
+vagrant@proxy:/vagrant/networking_playground$ docker network connect --link=service1-master:service1.myntra.com \
 --link service5-integration:service5.myntra.com frontend service2-custom
-vagrant@proxy:/vagrant/replier$ docker exec -it service1-master sh
+vagrant@proxy:/vagrant/networking_playground$ docker exec -it service1-master sh
 / # wget -qO- service5.myntra.com:5555
 I am service5:master listening on port 5555
 / # wget -qO- service2.myntra.com:2222
 I am service2:master listening on port 2222
 
-vagrant@proxy:/vagrant/replier$ docker exec -it service2-custom sh
+vagrant@proxy:/vagrant/networking_playground$ docker exec -it service2-custom sh
 / # wget -qO- service1.myntra.com:1111
 I am service1:master listening on port 1111
 / # wget -qO- service3.myntra.com:3333

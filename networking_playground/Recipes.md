@@ -46,6 +46,12 @@ $ env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags \
 $ docker build --rm=true --build-arg PORT=$1 -t $2:$3 .
 ```
 
+We are redirecting traffic from port 80 to the service's set PORT so that we can do this:
+
+```bash
+vagrant@proxy:/vagrant/networking_playground$ docker exec  -it service2-custom wget -qO- service3.myntra.com
+I am service3:custom listening on port 3333
+```
 
 We want to share service1-master and service5-integration to the "custom" network.
  On the other hand, service1-master and service5-integration containers should not
@@ -72,19 +78,21 @@ vagrant@proxy:/vagrant/networking_playground$ docker network connect frontend se
 
 vagrant@proxy:/vagrant/networking_playground$ docker network connect --link=service1-master:service1.myntra.com \
 --link service5-integration:service5.myntra.com frontend service2-custom
-vagrant@proxy:/vagrant/networking_playground$ docker exec -it service1-master sh
-/ # wget -qO- service5.myntra.com:5555
+vagrant@proxy:/vagrant/networking_playground$ docker exec -it service1-master wget -qO- service5.myntra.com
 I am service5:master listening on port 5555
-/ # wget -qO- service2.myntra.com:2222
+
+vagrant@proxy:/vagrant/networking_playground$ docker exec -it service1-master wget -qO- service2.myntra.com
 I am service2:master listening on port 2222
 
-vagrant@proxy:/vagrant/networking_playground$ docker exec -it service2-custom sh
-/ # wget -qO- service1.myntra.com:1111
+vagrant@proxy:/vagrant/networking_playground$ docker exec -it service2-custom wget -qO- service1.myntra.com
 I am service1:master listening on port 1111
-/ # wget -qO- service3.myntra.com:3333
+vagrant@proxy:/vagrant/networking_playground$ docker exec -it service2-custom wget -qO- service3.myntra.com
 I am service3:custom listening on port 3333
-/ # wget -qO- service4.myntra.com:4444
+vagrant@proxy:/vagrant/networking_playground$ docker exec -it service2-custom wget -qO- service4.myntra.com
 I am service4:custom listening on port 4444
+vagrant@proxy:/vagrant/networking_playground$ docker exec -it service2-custom wget -qO- service5.myntra.com
+I am service5:integration listening on port 5555
+
 ```
 Since the developer explicitly requires master and integration containers in the cluster,
  we can safely assume a one-many mapping L.H.S is the custom network container

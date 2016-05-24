@@ -4,5 +4,5 @@ if [ "$#" -ne 2 ] ; then
   exit 1
 fi
 
-echo "docker rmi  $1:$2"
-docker rmi  $1:$2
+echo "docker rmi  service:$1-$2"
+docker rmi  service:$1-$2

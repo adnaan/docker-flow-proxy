@@ -1,7 +1,10 @@
-FROM busybox
+FROM alpine
+RUN apk --update add socat
+RUN apk add --update ca-certificates
 ARG PORT
 EXPOSE $PORT
-ADD zoneinfo.tar.gz /
-ADD ca-certificates.crt /etc/ssl/certs/
 ADD reply /
-CMD ["/reply"]
+ADD entry.sh /
+RUN chmod +x /entry.sh
+ENTRYPOINT ["/entry.sh"]
+CMD ["/entry.sh"]
